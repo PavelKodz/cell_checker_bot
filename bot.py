@@ -81,8 +81,27 @@ async def handle_language_or_input(update: Update, context: ContextTypes.DEFAULT
         await update.message.reply_text(translations[lang]["not_found"])
 
 # Запуск бота
-app = ApplicationBuilder().token("7653476793:AAGffImeMX8oLkwOSlb7X18Y4mDt9xJee4o").build()
+import os
+
+TOKEN = os.getenv("BOT_TOKEN")
+WEBHOOK_HOST = os.getenv("RENDER_EXTERNAL_URL")
+WEBHOOK_PATH = f"/webhook/{TOKEN}"
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+
+app = ApplicationBuilder().token(TOKEN).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("language", change_language))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_language_or_input))
-app.run_polling()
+
+async def start_bot():
+    await app.bot.set_webhook(WEBHOOK_URL)
+    await app.start()
+    await app.updater.start_webhook(
+        listen="0.0.0.0",
+        port=int(os.getenv("PORT", 10000)),
+        url_path=WEBHOOK_PATH,
+        webhook_url=WEBHOOK_URL
+    )
+
+import asyncio
+asyncio.run(start_bot())
