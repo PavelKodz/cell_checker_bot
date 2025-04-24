@@ -72,7 +72,7 @@ async def handle_language_or_input(update: Update, context: ContextTypes.DEFAULT
     else:
         await update.message.reply_text(translations[lang]["not_found"])
 
-if name == "__main__":
+if __name__ == "__main__":
     import asyncio
     from aiohttp import web
 
